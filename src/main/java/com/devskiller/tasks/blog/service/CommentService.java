@@ -8,6 +8,8 @@ import com.devskiller.tasks.blog.repository.PostRepository;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -27,10 +29,9 @@ public class CommentService {
 	 * @param postId id of the post
 	 * @return list of comments sorted by creation date descending - most recent first
 	 */
+	@Transactional
 	public List<CommentDto> getCommentsForPost(Long postId) {
-		List<Comment> byPostIdOrderByCreatedDesc = commentRepository.findByPost_IdOrderByCreatedDesc(
-			postId);
-		return postRepository.findById(postId)
+			return postRepository.findById(postId)
 			.map(post -> post.getComments()
 				.stream()
 				.sorted(Comparator.comparing(Comment::getCreated).reversed())
@@ -48,6 +49,7 @@ public class CommentService {
 	 * @throws IllegalArgumentException if postId is null or there is no blog post for passed
 	 *                                  postId
 	 */
+	@Transactional
 	public Long addComment(Long postId, NewCommentDto newCommentDto) {
 		return postRepository.findById(postId).map(post -> {
 			Comment comment = mapToComment(newCommentDto);
